@@ -1,0 +1,11 @@
+{
+    "service": {
+        "name": "redis",
+        "tags": ["master"],
+        "port": 8000,
+        "check": {
+            "script": "/usr/local/bin/check_redis.py",
+            "interval": "10s"
+        }
+    }
+}
