@@ -1,0 +1,11 @@
+{{define "person"}}
+<p>{{.Name}}</p>
+{{end}}
+<html>
+  <body>
+    <p>Your Friends:</p>
+    {{range .}}
+    {{template "person" .}}
+    {{end}}
+  </body>
+</html>
