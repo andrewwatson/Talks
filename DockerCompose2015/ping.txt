@@ -1,0 +1,18 @@
+$ docker run --rm -it progrium/busybox ping -c 2 data.service.consul
+PING data.service.consul (10.55.10.110): 56 data bytes
+64 bytes from 10.55.10.110: seq=0 ttl=63 time=6.946 ms
+64 bytes from 10.55.10.110: seq=1 ttl=63 time=6.771 ms
+
+--- data.service.consul ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 6.771/6.858/6.946 ms
+
+$ docker run --rm -it progrium/busybox ping -c 2 data
+PING data (10.55.10.110): 56 data bytes
+64 bytes from 10.55.10.110: seq=0 ttl=63 time=4.323 ms
+64 bytes from 10.55.10.110: seq=1 ttl=63 time=4.593 ms
+
+--- data ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 4.323/4.458/4.593 ms
+$ 
