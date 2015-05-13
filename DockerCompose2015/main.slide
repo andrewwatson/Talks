@@ -7,6 +7,10 @@ Lead Developer, Ionic Security
 andy@ionic.com
 @andrewwatson
 
+* The Real Title
+
+Creating a cluster of machines, all running Docker, that have logging and service discovery infrastucture enabled by using Docker Compose, Docker Machine, Consul, Registrator, Consul Template, Elastic Search, Logstash, LogSpout, Kibana and HAProxy together
+
 * What is Docker Compose
 
 Allows you to define with YAML which containers should be running, how they are configured and related to each other
