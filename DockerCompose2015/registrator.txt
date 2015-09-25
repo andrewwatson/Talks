@@ -1,0 +1,8 @@
+registrator:
+  image: gliderlabs/registrator:latest
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock
+  hostname: registrator
+  command: consul://consul:8500
+  links:
+    - consul

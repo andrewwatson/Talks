@@ -1,0 +1,18 @@
+consul:
+  image: progrium/consul
+  environment:
+    GOMAXPROCS: 2
+    SERVICE_IGNORE: true
+  hostname: consul-keyserver2
+  entrypoint: /bin/start
+  ports:
+   - "10.55.10.111:8300:8300"
+   - "10.55.10.111:8301:8301"
+   - "10.55.10.111:8302:8302"
+   - "10.55.10.111:8301:8301/udp"
+   - "10.55.10.111:8302:8302/udp"
+   - "10.55.10.111:8400:8400"
+   - "10.55.10.111:8500:8500"
+   - "172.17.42.1:53:53/udp"
+  command: -server -advertise 10.55.10.111 -bootstrap-expect 2 -ui-dir /ui -join 10.55.10.110 -dc customer
+  hostname: consul2

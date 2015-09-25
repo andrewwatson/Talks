@@ -1,0 +1,212 @@
+Creating a Cluster w/ Discovery and Logging with Composer
+
+13 May - ATL Docker Meetup
+
+Andy Watson
+Lead Developer, Ionic Security
+andy@ionic.com
+@andrewwatson
+
+* The Real Title
+
+Creating a cluster of machines, all running Docker, that have logging and service discovery infrastucture enabled by using Docker Compose, Docker Machine, Consul, Registrator, Consul Template, Elastic Search, Logstash, LogSpout, Kibana and HAProxy together
+
+* What is Docker Compose
+
+Allows you to define with YAML which containers should be running, how they are configured and related to each other
+
+.code example.yml
+
+* Run it
+
+docker-compose up -d
+
+.code output.txt
+
+* And now for something fun...
+
+* Logging
+
+You need to get all the output of everything that happens in your containers to a central location!
+
+- be alerted on errors
+- be aware of failed services
+
+* Papertrail
+
+One option is to use logspout to direct all logging output to Papertrail.com 
+
+https://papertrailapp.com/
+
+* Setting up Papertrail
+
+Jeff Lindsay created an application called Logspout
+
+- takes all the output from every container and send it to... something!
+- syslog is an option
+- paper trail gives you a syslog address to use
+
+.code logspout.txt
+
+* What it looks like
+
+.image papertrail.png
+
+* meh.
+
+It's... ok.  
+
+But we can do better!
+
+* ELK Stack
+
+Nathan Leclaire wrote up a great article on using Elastic Search, Logstash, Logspout and Kibana to make a working log management dashboard
+
+http://nathanleclaire.com/blog/2015/04/27/automating-docker-logging-elasticsearch-logstash-kibana-and-logspout/
+
+* The YAML
+
+.code elk.txt
+
+* What it looks like
+
+.image elk.png
+
+* Features
+
+- Searchable
+- Filterable
+- Set up alerts etc
+
+* Discovery
+
+Now that we have logs streaming in we can spin up services and get real work done
+
+but how will we be able to find them?
+
+* What is Consul?
+
+- Service Directory Registry
+- Key/Value store
+- Check and Set via locks on k/v
+- Provides answers to clients via HTTP and DNS APIs
+
+* I gave a talk about this at a Go Meetup last fall
+
+http://go-talks.appspot.com/github.com/andrewwatson/Talks/ServiceDiscovery2014/discovery.slide#1
+
+* Start it Up!
+
+- run it in a container, obviously
+- also, compose it with... compose
+
+.code consul1.txt
+
+* Start another one!
+
+- advertises its address
+- joins with the other box to create a cluster
+
+.code consul2.txt
+
+* Now we have a service directory
+
+but we have to register things in it so that we can find them
+
+if only there was something that could make this really easy...
+
+* Registrator
+
+- automatically registers all new containers with Consul (or etcd, skydns etc)
+- unless you don't want it to
+
+* Also runs in a container
+
+compose it thusly:
+
+.code registrator.txt
+
+- linked to consul container for easy reference
+- reads docker socket to see when containers are created and destroyed
+- notifies consul when this happens
+
+* Enough Registering, Let's Find Something
+
+- Consul DNS interface makes it easy to locate instances of service "x" by search DNS for "x.service.consul"
+- TLD is configurable
+- Tags are supported so that you can search for "master.postgres.service.consul" etc
+
+* How do we make it really easy for other containers to use this?
+
+- We tell Docker to route DNS traffic to our Consul container
+- the key here are the --dns and --dns-search options
+- the rest were set up nicely by docker-machine
+
+.code dockeropts.txt
+
+* Resolving Things
+
+So if we have the "data" service registered in Consul
+
+.image consul-shot.png
+
+* DNS
+
+Then we can query "data.service.consul" or even just "data" via DNS inside any container
+
+.code ping.txt
+
+* Linking No Longer Necessary
+
+- we can discover containers at run time, not at composition time
+- if we add/remove them later then Consul/Registrator always knows
+- now you can connect services running on different boxes
+
+* Example Cluster
+
+- web app, database, redis, haproxy all running in containers
+- it doesn't really matter too much which box they run on*
+
+.image diagram.png
+
+* Let's Load Balance!
+
+- now we're getting fancy
+- prepare for the awesome sauce
+
+Let's automatically configure the backend of that HAProxy container so that it's always pointed at an instance of the web app
+- eliminates DNS lookups
+- allows you to get really tricky, I mean, sophisticated!
+
+* Consul Template
+
+- Watches Consul service definitions and key/value pairs for changes
+- Renders configuration files from templates
+- Restarts services
+
+* Uses standard Go Template format
+- includes helper functions
+
+.code haproxy.cfg.template.txt
+
+* Registered Services
+
+.image consul-service.png
+
+* Configure things with K/V
+
+.image consul-kv.png
+
+* The result
+
+.code haproxy.cfg.txt
+
+* What ELSE?
+
+Now anything is possible!
+- discover services from other data centers
+- make instances in other data centers backends for your proxies but with different weights
+- global domination
+- i'm sure i'm forgetting something
+
+* Questions?

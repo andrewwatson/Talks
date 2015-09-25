@@ -1,0 +1,16 @@
+global
+    daemon
+    maxconn 1000
+
+defaults
+    mode http
+    timeout client 4
+    timeout connect 5
+    timeout queue 4
+    timeout tarpit 6
+
+listen http-in
+    bind *:8000
+    server enterprisebackend49186 10.55.10.114:49186
+    server enterprisebackend49185 10.55.10.114:49185
+    server enterprisebackend49184 10.55.10.114:49184

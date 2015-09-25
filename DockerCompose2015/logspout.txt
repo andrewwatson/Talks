@@ -1,0 +1,4 @@
+$ docker run --name="logspout" \
+    --volume=/var/run/docker.sock:/tmp/docker.sock \
+    gliderlabs/logspout \
+    syslog://logs.papertrailapp.com:55555
