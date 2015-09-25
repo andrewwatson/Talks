@@ -1,0 +1,62 @@
+What's New In Go 1.4?
+
+January 2015
+
+Andrew Watson
+Ionic Security
+andy@ionicsecurity.com
+@andrewwatson
+
+* Android
+
+- Build binaries and shared libraries for Android applications on ARM
+
+* Runtime written in Go, not C
+
+- Garbage Collection now fully precise
+- Heap Size %10 to %30 smaller
+- Stacks are no longer segmented
+
+* GCC
+
+- GCC 4.9 contains Go 1.2
+- GCC 5.0 will contain Go 1.4
+
+* Command Changes
+
+- Unless cgo is being used to build the package, the go command now refuses to compile C source files 
+- The relevant C compilers (6c etc.) are intended to be removed from the installation in some future release. 
+
+* Speed
+
+- Some programs will be slightly faster in 1.4
+- But some will be slower!
+
+* Major Library Changes
+
+- bufio.Scanner 
+- syscall
+
+* Minor Library Changes
+
+- net/http/Request has a BasicAuth method that returns username/password from an authenticated request
+- net/http/Transport has DialTLS for better control of outbound HTTPS
+
+* Test Coverage
+
+- testing Coverage type supports coverage fraction
+- each test can determine how much it contributes to overall coverage
+
+* Canonical Import Paths
+
+	package pdf // import "rsc.io/pdf"
+
+* code.google.com/p/go
+
+- Replaced with golang.org/x/ in canonical imports
+- Around June 1, 2015 Go 1.4 and later will stop accepting the old code.google.com paths.	
+
+* go generate
+
+- Produce a .go file from a .y file using yacc
+- Implement a grammar 

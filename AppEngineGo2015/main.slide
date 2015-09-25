@@ -1,0 +1,266 @@
+Deploying Go on AppEngine
+How I Learned to Love Google's Fancy Platform in a Box
+
+HackGT September 2015 - Andrew Watson
+
+andy@ionic.com
+@andrewwatson
+
+* It wasn't love at first sight... in 2008
+
+- When AppEngine first launched it was pretty rough
+- Long outages
+- Nowhere else to run your app when GAE was having a bad day
+- Python only
+
+* But It's Come A Long Way
+
+- Support for more runtimes like Java, PHP and Go
+- Ability to convert GAE instances to managed VMs
+
+* What is AppEngine?
+
+* Features
+
+- Automatically Scalable Web Hosting Platform
+- Multiple Data Storage Options
+- Builtin Memcache 
+- Builtin Twilio Support •
+- Builtin SendGrid Support
+- Google OAuth
+- XMPP
+- Task Queues
+
+• not in the Go runtime... still.
+
+.link https://cloud.google.com/appengine/features/
+
+* General
+
+- Go 1.4
+- You deploy your code to GAE, not a compiled application
+
+App Engine applications run in a sandbox environment with some limitations on them
+
+- Can't initiate network connections directly from your code
+- no writing to the file system
+- you must respond quickly (a few seconds is too long)
+- many other system calls restricted
+
+* Go Routines
+
+Scheduled on a single thread
+
+Run Concurrently but not in Parallel
+
+* Getting Started Writing the Go
+
+Download the AppEngine Development Environment
+
+.link https://cloud.google.com/appengine/docs/go/gettingstarted/devenvironment
+
+Set up your PATH
+
+	export PATH=$PATH:$HOME/go_appengine
+
+* Hello World
+
+hello.go
+
+.code hello.go
+
+Notice anything Missing? No need to call ListenAndServe...
+
+* Configure Your App
+
+app.yaml
+
+.code app.yaml
+
+* Test Locally
+
+	goapp serve .
+
+Point your browser at it
+
+	http://localhost:8080/
+
+* http.Client
+
+You have to get an http.Client from the AppEngine context
+instead of just 
+
+	client := http.Client{}
+
+.code twilio.go /START ONE/,/STOP ONE/
+
+* Client Usage Example
+
+.code twilio.go /START TWO/,/STOP TWO/
+
+* Templating
+
+The html/template and text/template packages are a very powerful way to create dynamic responses in your web application
+
+.code sampletemplate.html
+
+html/template adds sanitization steps to text/template to prevent things like XSS attacks
+
+* In Action
+
+.code sign.go
+
+* Advanced Templating
+
+* Ranges
+
+person.go
+
+	type Person struct {
+		Name string
+	}
+
+	var people []Person
+	peopleTemplate.Execute(w, people))
+
+person.template
+
+	{{range .People}} Name: {{.Name}} {{else}} No People Listed {{end}}
+
+* Nested Templates
+
+.code nested.html
+
+* Data Storage
+
+App Engine Data Store takes care of distribution, replication and load balancing
+
+Uses Paxos Algorithm to replicate across data centers
+
+Objects are stored as "Entity" types
+
+* Saving Something
+
+store.go
+
+.code store.go
+
+* Ancestor Keys
+
+First, we create a root key that will be the parent of all entries
+
+    rootKey := datastore.NewKey(c, "Guestbook", "default_guestbook", 0, nil)
+
+Then we create our new entry with rootKey as the parent
+
+    key := datastore.NewIncompleteKey(c, "Greeting", rootKey)
+
+Only Ancestor Queries are strongly consistent in the Highly Available Datastore
+
+* Getting Things Back
+
+.code fetch.go
+
+* Cache with memcache
+
+AppEngine gives you a way to cache items in memcache without having to set up servers or set up a hashing / sharding mechanism
+
+Objects are limited to 1M in size
+
+Keys can only be 250 bytes in size
+
+Paid accounts can access a dedicated, exclusive fixed size memcache
+
+* Add an item
+
+.code add_cache.go
+
+* Get an item back from memcache
+
+.code get_cache.go
+
+* Deploying to AppEngine
+
+First, create a new AppEngine project
+
+.link https://console.developers.google.com/
+
+Change the 
+
+	application: helloworld
+
+line to contain your new application ID
+
+	application: western-egg-930
+
+* Send It Up (Simple)
+
+If you don't have 2 factor auth enabled, it's simple:
+
+	goapp deploy
+
+You'll be prompted for your email address and password
+
+* Deploy with OAuth2
+
+	appcfg.py --oauth2 update .
+
+The goapp command calls the original python tools which take a lot more options so in order to use OAuth2 tokens for deployment (because of 2FA) we'll go to the old tools
+
+Pass Refresh Token In
+
+	appcfg.py --oauth2_refresh_token=OAUTH2_REFRESH_TOKEN
+
+Pass Access Token In
+
+	appcfg.py --oauth2_access_token=OAUTH2_ACCESS_TOKEN
+
+Pass your password in on STDIN
+
+	--passin 
+
+These options come in handy for using tools like CircleCI to deploy your application automatically
+
+* Check it out!
+
+Default URL:
+
+	http://western-egg-930.appspot.com
+
+You can associate custom domain names with your application once you verify you own them in the webmaster tools
+
+* Static Assets
+
+You can configure the AppEngine runtime to serve up static assets directly
+
+.code static_app.yaml
+
+* More...
+
+Modules - create multiple frontend, backend and scheduled task modules that can be deployed separately
+
+Monitoring - Track resource usage, access records across instances in almost real time
+
+Testing - you can run unit tests against your application but you can't run 
+
+	go test
+
+because the appengine package is not stored in your $GOPATH but you can run
+
+	goapp test
+
+* Support from CircleCI and CodeShip
+
+- Both platforms allow you to run "go test" against your code base and deploy to App Engine upon completion
+- CodeShip was easier to get working
+- Google has a "deployment" tool that spins up a jenkins instance in GCE but it will cost you $20/month while CodeShip and CircleCI are free...
+
+* Some Stuff I've deployed to AppEngine Recently
+
+*SMS* *Voting* for *CSS* *DevConf* in Austin
+Attendees can rate the conference session and leave comments via SMS
+Results were kept in datastore and could be exported as CSV for the organizers
+
+*OthrNumbr*
+A disposable phone number system [[http://www.othrnumbr.com]] (EARLY BETA)
+
