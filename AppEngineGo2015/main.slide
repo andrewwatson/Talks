@@ -9,7 +9,7 @@ andy@ionic.com
 * It wasn't love at first sight... in 2008
 
 - When AppEngine first launched it was pretty rough
-- Long outages
+- Outages
 - Nowhere else to run your app when GAE was having a bad day
 - Python only
 
@@ -25,20 +25,36 @@ andy@ionic.com
 - Automatically Scalable Web Hosting Platform
 - Multiple Data Storage Options
 - Builtin Memcache 
-- Builtin Twilio Support •
 - Builtin SendGrid Support
 - Google OAuth
 - XMPP
 - Task Queues
 
-• not in the Go runtime... still.
-
 .link https://cloud.google.com/appengine/features/
 
-* General
+* Go Basics
 
-- Go 1.4
-- You deploy your code to GAE, not a compiled application
+Download the Tools
+
+.link https://golang.org/
+
+Take a Tour
+
+.link https://tour.golang.org/welcome/1
+
+Play with Examples
+
+.link https://play.golang.org/
+
+More Talks
+
+.link http://talks.golang.org/
+
+* Go on Google App Engine
+
+- Run Go 1.4
+- You deploy your source code to GAE, not a compiled application
+- Run a development version locally for testing
 
 App Engine applications run in a sandbox environment with some limitations on them
 
